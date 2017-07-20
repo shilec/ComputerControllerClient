@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.butterknife'
 
 android {
     compileSdkVersion 25
@@ -33,8 +34,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile files('libs/comctrlpluginapi_1.0.0.jar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.afollestad.material-dialogs:commons:0.9.4.5'
+    compile 'com.jakewharton:butterknife:8.7.0'
     testCompile 'junit:junit:4.12'
-    compile files('libs/comctrlpluginapi_1.0.0.jar')
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
+    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:v2.+'
 }

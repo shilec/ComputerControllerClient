@@ -10,8 +10,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.shilec.plugin.api.Contacts;
-import com.shilec.plugin.api.DataPackge;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.shilec.plugin.api.moudle.Contacts;
+import com.shilec.plugin.api.moudle.DataPackge;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -123,17 +124,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }break;
             case R.id.btn_start: {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            startClient();
-                            screenRefresh();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            startClient();
+//                            screenRefresh();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }).start();
+                new MaterialDialog.Builder(this)
+                        .title("progress")
+                        .content("wait")
+                        .progress(true, 0)
+                        .show();
             }break;
 
         }
