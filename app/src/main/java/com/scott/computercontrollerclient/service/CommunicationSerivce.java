@@ -5,18 +5,23 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.scott.computercontrollerclient.activity.BaseActivity;
+import com.scott.computercontrollerclient.app.EventContacs;
+import com.scott.computercontrollerclient.event.EventManager;
+import com.scott.computercontrollerclient.moudle.CommunicationEvent;
 import com.scott.computercontrollerclient.moudle.DeviceInfo;
-import com.shilec.plugin.api.communication.base.ICommunication;
+import com.scott.computercontrollerclient.utils.IPUtils;
+import com.scott.computercontrollerclient.utils.Logger;
 import com.shilec.plugin.api.communication.base.ICommunicationCallback;
 import com.shilec.plugin.api.communication.base.ICommunicationProxy;
 import com.shilec.plugin.api.communication.base.IMessageCallback;
-import com.shilec.plugin.api.communication.impl.BaseCommunicationPoxy;
 import com.shilec.plugin.api.communication.impl.CommunicationManager;
 import com.shilec.plugin.api.moudle.DataPackge;
+import com.shilec.plugin.api.scanner.DeviceScanner;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -34,13 +39,14 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
     public static final String EXTRA_CMD = "CMD";
     public static final String CMD_START_COMMUNICATION = "START_COMMUNICATION";
     public static final String CMD_SCAN_DEVICE_IP_ADDR = "SCAN_DEVICE";
-    private DeviceScanner mIPScanner;
+    public static final String CMD_ADD_DIY_DEVICE = "ADD_DEVICE";
+    public static final String CMD_CLOSE_COMMUNICATION = "CLOSE_COMMUNICATION";
+    public static final String EXTRA_DATA = "DATA";
     private List<DeviceInfo> devices;
-    private final int PORT = 9008;
-    private final String BASE_IP_ADDR = "192.168.199.";
+    private final int DEVICE_FIND_PORT = 9008;
+    private final int TCP_CONNECTION_PORT = 9009;
     private Handler handler = new Handler(this);
     private static List<OnFindDevices> observers = new ArrayList<>();
-
 
 
     public interface OnFindDevices {
@@ -70,7 +76,6 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
         mClientProxy.addMessageCallback(this);
 
         devices = new ArrayList<>();
-        mIPScanner = new DeviceScanner(true,PORT,BASE_IP_ADDR,this);
     }
 
     @Override
@@ -87,18 +92,59 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
                 scanDevices();
                 break;
             case CMD_START_COMMUNICATION:
-                startCommunication();
+                startCommunication(intent);
+                break;
+            case CMD_ADD_DIY_DEVICE:
+                addDevice(intent);
+                break;
+            case CMD_CLOSE_COMMUNICATION:
+                closeCommunication();
                 break;
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void scanDevices() {
-        mIPScanner.start();
+    private void closeCommunication() {
+        if(mClientProxy != null) {
+            mClientProxy.close();
+        }
     }
 
-    private void startCommunication() {
+    private void addDevice(Intent intent) {
+        if(BaseActivity.getInstacne() != null) {
+            BaseActivity.getInstacne().showLoadingDialog("添加设备","正在检查设备是否可用,请稍后。。。");
+        }
+        DeviceInfo device = (DeviceInfo) intent.getSerializableExtra(EXTRA_DATA);
+        DeviceScanner scanner = DeviceScanner.testConnectionVaild(DEVICE_FIND_PORT,device.ipAddr,this);
+        scanner.start();
+    }
 
+    private void scanDevices() {
+
+        String ipAddr = IPUtils.getWifiIpAddr(this);
+        if(ipAddr == null) {
+            if(BaseActivity.getInstacne() != null) {
+                BaseActivity.getInstacne().showMsgDialog("手机WIFI未开启,请开启WIFI后重试");
+            }
+            return;
+        }
+
+        if(BaseActivity.getInstacne() != null) {
+            BaseActivity.getInstacne().showLoadingDialog("扫描设备","正在扫描设备,请稍后。。。");
+        }
+        //ipAddr = ipAddr.substring(0,ipAddr.lastIndexOf("."));
+        String gateWay = ipAddr.substring(0,ipAddr.lastIndexOf(".") + 1);
+        Log.i(CommunicationSerivce.class.getSimpleName(),"gateWay = " + ipAddr + " = " + gateWay);
+        DeviceScanner dscanner = DeviceScanner.getScanner(DEVICE_FIND_PORT,gateWay,this);
+        dscanner.start();
+        //String subNetMask = IPUtils.getSubnetMask(IPUtils.getWifiIpAddrInt(this));
+        //Log.i(CommunicationSerivce.class.getSimpleName(),">>>>" + subNetMask);
+    }
+
+
+    private void startCommunication(Intent intent) {
+        DeviceInfo info = (DeviceInfo) intent.getSerializableExtra(EXTRA_DATA);
+        mClientProxy.startAsClient(info.ipAddr, TCP_CONNECTION_PORT);
     }
 
     @Override
@@ -113,23 +159,30 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
 
     @Override
     public void onConnectionClosed(int i) {
-
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"server closed !");
     }
 
     @Override
     public void onMessage(DataPackge dataPackge) {
-
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"msg = > " + dataPackge.data);
+        CommunicationEvent event = new CommunicationEvent();
+        event.dataPackge = dataPackge;
+        event.eventType = EventContacs.CMD_COMMUNICATION_ALL;
+        EventManager.getSingleton().sendEvent(event);
     }
 
 
     @Override
     public void onScanFinished(String ip) {
+        if(BaseActivity.getInstacne() != null) {
+            BaseActivity.getInstacne().dismissLoadingDialog();
+        }
         System.out.println("ip ======== " + ip);
         if (TextUtils.isEmpty(ip)) return;
         String[] str = ip.split(":");
         DeviceInfo device = new DeviceInfo();
         device.ipAddr = str[1];
-        device.name = str[2];
+        device.name = str[0];
 
         if (!devices.contains(device)) {
             devices.add(device);

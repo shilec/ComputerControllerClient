@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.scott.computercontrollerclient.R;
 
 import java.lang.reflect.Method;
@@ -32,15 +33,71 @@ public class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
     @BindView(R.id.tool_bar)
     Toolbar toolBar;
+    protected ViewGroup mContent;
 
-    ViewGroup mContent;
+    private static BaseActivity mInstacne;
+    private MaterialDialog mLoadingDialog;
+
+    public void showLoadingDialog(String title,String content) {
+        if(mLoadingDialog == null) {
+            mLoadingDialog = new MaterialDialog.Builder(this)
+                    .title(title)
+                    .content(content)
+                    .progress(true, 0)
+                    .negativeText("CANCEL")
+                    .build();
+        }
+        mLoadingDialog.setCancelable(false);
+        mLoadingDialog.setTitle(title);
+        mLoadingDialog.setContent(content);
+        mLoadingDialog.setProgress(0);
+        mLoadingDialog.show();
+    }
+
+
+    public void showMsgDialog(String msg) {
+        new MaterialDialog.Builder(this)
+                .title("提示")
+                .content(msg)
+                .canceledOnTouchOutside(false)
+                .positiveText("OK")
+                .show();
+    }
+
+    public void showConfigmDialog(String msg, MaterialDialog.SingleButtonCallback callback) {
+        new MaterialDialog.Builder(this)
+                .title("提示")
+                .content(msg)
+                .canceledOnTouchOutside(false)
+                .positiveText("OK")
+                .onPositive(callback)
+                .negativeText("CANCEL")
+                .show();
+    }
+
+    public void dismissLoadingDialog() {
+        if(mLoadingDialog != null && mLoadingDialog.isShowing()) {
+            mLoadingDialog.dismiss();
+        }
+    }
+
+    public static BaseActivity getInstacne() {
+        return mInstacne;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mContent = (ViewGroup) LayoutInflater.from(this).inflate(R.layout.activity_base,null,false);
         super.setContentView(mContent);
+        mInstacne = this;
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mInstacne = null;
     }
 
     @Override
@@ -50,11 +107,11 @@ public class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         setSupportActionBar(toolBar);
         toolBar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
         toolBar.setTitleTextColor(Color.WHITE);
-        toolBar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_more_vert_white_24dp));
+        toolBar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
         toolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
         toolBar.setOnMenuItemClickListener(this);
