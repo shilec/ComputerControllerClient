@@ -21,7 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,ScreenImageView.OnMouseMoveListenner{
 
@@ -124,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }break;
             case R.id.btn_start: {
+
 //                new Thread(new Runnable() {
 //                    @Override
 //                    public void run() {
@@ -140,6 +146,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .content("wait")
                         .progress(true, 0)
                         .show();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            startClient();
+                           // screenRefresh();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
             }break;
 
         }
@@ -147,18 +166,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void startClient() throws Exception {
-        Socket socket = new Socket(ip,port);
-        ois = new ObjectInputStream(socket.getInputStream());
-        oos = new ObjectOutputStream(socket.getOutputStream());
+//        Socket socket = new Socket(ip,port);
+//        ois = new ObjectInputStream(socket.getInputStream());
+//        oos = new ObjectOutputStream(socket.getOutputStream());
+//
+//        while(true) {
+//            DataPackge data = (DataPackge) ois.readObject();
+//            switch (data.code) {
+//                case Contacts.Command.CMD_PC_INFO: {
+//                    onScreenRefresh(data);
+//                }break;
+//            }
+//        }
+        IPScannner scannner = IPScannner.getInstance(9008, 1, "192.168.0.", new IPScannner.IScannerCallback() {
 
-        while(true) {
-            DataPackge data = (DataPackge) ois.readObject();
-            switch (data.code) {
-                case Contacts.Command.CMD_PC_INFO: {
-                    onScreenRefresh(data);
-                }break;
+            public void onIpFind(String ip) {
+                System.out.println("ip:" + ip);
             }
-        }
+        });
+        scannner.scanIpAddr();
     }
 
     private void onScreenRefresh(final DataPackge data) {
@@ -225,5 +251,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
 
+    }
+
+    private static boolean isExt = false;
+
+    public static void send() {
+        new Thread(new Runnable() {
+
+            public void run() {
+                DatagramSocket client = null;
+                for (int i = 1; i <= 255; i++) {
+                    if(isExt) break;
+                    String ip = "192.168.0.";
+                    try {
+                        String local = InetAddress.getLocalHost().getHostAddress();
+                        if((ip + i).contains("192.168.0.138")) continue;
+                        System.out.println("local = " + local);
+                        client = new DatagramSocket();
+                        byte[] buf = "get_ip".getBytes();
+                        InetSocketAddress inetAddress = new InetSocketAddress(ip + i, 9008);
+                        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, inetAddress);
+                        System.out.println("正在尝试：" + (ip + i));
+                        client.send(datagramPacket);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                client.close();
+            }
+        }).start();
+    }
+
+
+    public static void read() {
+        new Thread(new Runnable() {
+
+            public void run() {
+                try {
+                    byte[] buf = new byte[256];
+                    DatagramSocket dSocket = new DatagramSocket(9008);
+                    while (true) {
+
+                        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
+                        dSocket.receive(datagramPacket);
+                        if(new String(buf).contains("remote")) break;
+                    }
+                    System.out.println("搜索到ip:" + new String(buf));
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }
