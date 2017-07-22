@@ -18,7 +18,6 @@ import com.scott.computercontrollerclient.R;
 import com.scott.computercontrollerclient.adapter.DeviceListAdapter;
 import com.scott.computercontrollerclient.moudle.DeviceInfo;
 import com.scott.computercontrollerclient.service.CommunicationSerivce;
-import com.shilec.plugin.api.communication.impl.CommunicationManager;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

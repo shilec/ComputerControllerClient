@@ -5,10 +5,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+
+import com.scott.computercontrollerclient.utils.Logger;
 
 /**
  * Created by Administrator on 2017/7/19 0019.
@@ -54,11 +57,13 @@ public class ScreenImageView extends ImageView{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Logger.i(ScreenImageView.class.getSimpleName(),"onTouch === >" + event.getAction());
         switch (event.getAction()) {
-            case MotionEvent.ACTION_UP: {
+            case MotionEvent.ACTION_DOWN: {
                 l.onMove(event.getX(),event.getY());
             }break;
         }
+        Logger.i(ScreenImageView.class.getSimpleName(),"onTouch === >");
         return super.onTouchEvent(event);
     }
 }

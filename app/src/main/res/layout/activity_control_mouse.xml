@@ -6,7 +6,46 @@
     android:layout_height="match_parent"
     tools:context="com.scott.computercontrollerclient.activity.ControlMouseActivity">
     <TextView
+        android:visibility="gone"
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <EditText
+        android:layout_margin="10dp"
+        android:id="@+id/edit_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+        <Button
+            android:layout_below="@+id/edit_content"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/btn_send"
+            android:text="SEND"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:layout_toRightOf="@+id/btn_send"
+            android:layout_below="@+id/edit_content"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/btn_getpcinfo"
+            android:text="PC_DESKTOP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:layout_toRightOf="@+id/btn_getpcinfo"
+            android:layout_below="@+id/edit_content"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/btn_mouseclick"
+            android:text="PC_CLICK"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    <ScrollView
+        android:layout_below="@+id/btn_getpcinfo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.scott.computercontrollerclient.ScreenImageView
+            android:scaleType="fitXY"
+            android:id="@+id/iv_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ScrollView>
 </RelativeLayout>

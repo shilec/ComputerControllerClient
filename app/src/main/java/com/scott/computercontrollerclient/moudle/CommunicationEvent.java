@@ -2,7 +2,7 @@ package com.scott.computercontrollerclient.moudle;
 
 import com.scott.computercontrollerclient.app.EventContacs;
 import com.scott.computercontrollerclient.event.IEvent;
-import com.shilec.plugin.api.moudle.DataPackge;
+import com.shilec.plugin.api.common.DataPackge;
 
 /**
  * <p>Author:    shijiale</p>

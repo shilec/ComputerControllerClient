@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.shilec.plugin.api.moudle.Contacts;
-import com.shilec.plugin.api.moudle.DataPackge;
+import com.shilec.plugin.api.common.Contacts;
+import com.shilec.plugin.api.common.DataPackge;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,ScreenImageView.OnMouseMoveListenner{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     Button btnStart;
     Button btnRefresh;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnRefresh.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         ivImg = (ScreenImageView) findViewById(R.id.iv_img);
-        ivImg.setOnMouseListenner(this);
+        //ivImg.setOnMouseListenner(this);
         ivImg.setOnClickListener(this);
     }
 
@@ -90,22 +90,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        }).start();
 //    }
 
-    private Bitmap rotateBitmap(Bitmap origin, float alpha) {
-        if (origin == null) {
-            return null;
-        }
-        int width = origin.getWidth();
-        int height = origin.getHeight();
-        Matrix matrix = new Matrix();
-        matrix.setRotate(alpha);
-        // 围绕原地进行旋转
-        Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
-        if (newBM.equals(origin)) {
-            return newBM;
-        }
-        origin.recycle();
-        return newBM;
-    }
 
     @Override
     public void onClick(View v) {
@@ -178,38 +162,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                }break;
 //            }
 //        }
-        IPScannner scannner = IPScannner.getInstance(9008, 1, "192.168.0.", new IPScannner.IScannerCallback() {
-
-            public void onIpFind(String ip) {
-                System.out.println("ip:" + ip);
-            }
-        });
-        scannner.scanIpAddr();
     }
 
-    private void onScreenRefresh(final DataPackge data) {
-        Log.i("shilec","=======" + data.data);
-        final Bitmap bitmap = BitmapFactory.decodeByteArray(data.fileDatas, 0, data.fileDatas.length, null);
-        final Bitmap bitmap1 = rotateBitmap(bitmap,90);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ivImg.setImageBitmap(bitmap1);
-                try {
-                    JSONObject jObject = new JSONObject(data.data);
-                    jObject = jObject.getJSONObject("mouseInfo");
-                    Log.i("shilec","mouseInfo:" + jObject);
-                    int x = jObject.optInt("x");
-                    int y = jObject.optInt("y");
-                    ivImg.setMousePoint(1080-y,x);
-                    Log.i("shilec","x = " + x + ",y = " + y);
-                    Log.i("shilec","Ix = " + ivImg.getWidth() + ",Iy = " + ivImg.getHeight());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    private void onScreenRefresh(final DataPackge data) {
+//        Log.i("shilec","=======" + data.data);
+//        final Bitmap bitmap = BitmapFactory.decodeByteArray(data.fileDatas, 0, data.fileDatas.length, null);
+//        final Bitmap bitmap1 = rotateBitmap(bitmap,90);
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                ivImg.setImageBitmap(bitmap1);
+//                try {
+//                    JSONObject jObject = new JSONObject(data.data);
+//                    jObject = jObject.getJSONObject("mouseInfo");
+//                    Log.i("shilec","mouseInfo:" + jObject);
+//                    int x = jObject.optInt("x");
+//                    int y = jObject.optInt("y");
+//                    ivImg.setMousePoint(1080-y,x);
+//                    Log.i("shilec","x = " + x + ",y = " + y);
+//                    Log.i("shilec","Ix = " + ivImg.getWidth() + ",Iy = " + ivImg.getHeight());
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
     private void screenRefresh() {
         DataPackge data = new DataPackge();
@@ -233,79 +210,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onMove(final float x,final float y) {
-        Log.i("Click","click x = " + x + ",y = " + y);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                DataPackge data = new DataPackge();
-                data.code = Contacts.Command.CMD_MOUSE_MOVE;
-                data.data = "{\"x\":" + (1080 - x) + ",\"y\":" + y + "}";
-                try {
-                    oos.writeObject(data);
-                    oos.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+//    @Override
+//    public void onMove(final float x,final float y) {
+//        Log.i("Click","click x = " + x + ",y = " + y);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                DataPackge data = new DataPackge();
+//                data.code = Contacts.Command.CMD_MOUSE_MOVE;
+//                data.data = "{\"x\":" + (1080 - x) + ",\"y\":" + y + "}";
+//                try {
+//                    oos.writeObject(data);
+//                    oos.flush();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//
+//    }
 
-    }
-
-    private static boolean isExt = false;
-
-    public static void send() {
-        new Thread(new Runnable() {
-
-            public void run() {
-                DatagramSocket client = null;
-                for (int i = 1; i <= 255; i++) {
-                    if(isExt) break;
-                    String ip = "192.168.0.";
-                    try {
-                        String local = InetAddress.getLocalHost().getHostAddress();
-                        if((ip + i).contains("192.168.0.138")) continue;
-                        System.out.println("local = " + local);
-                        client = new DatagramSocket();
-                        byte[] buf = "get_ip".getBytes();
-                        InetSocketAddress inetAddress = new InetSocketAddress(ip + i, 9008);
-                        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length, inetAddress);
-                        System.out.println("正在尝试：" + (ip + i));
-                        client.send(datagramPacket);
-                    } catch (SocketException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                client.close();
-            }
-        }).start();
-    }
-
-
-    public static void read() {
-        new Thread(new Runnable() {
-
-            public void run() {
-                try {
-                    byte[] buf = new byte[256];
-                    DatagramSocket dSocket = new DatagramSocket(9008);
-                    while (true) {
-
-                        DatagramPacket datagramPacket = new DatagramPacket(buf, buf.length);
-                        dSocket.receive(datagramPacket);
-                        if(new String(buf).contains("remote")) break;
-                    }
-                    System.out.println("搜索到ip:" + new String(buf));
-                } catch (SocketException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
 }

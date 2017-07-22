@@ -1,6 +1,7 @@
 package com.scott.computercontrollerclient.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,15 +17,16 @@ import com.scott.computercontrollerclient.moudle.CommunicationEvent;
 import com.scott.computercontrollerclient.moudle.DeviceInfo;
 import com.scott.computercontrollerclient.utils.IPUtils;
 import com.scott.computercontrollerclient.utils.Logger;
+import com.shilec.plugin.api.common.DataPackge;
 import com.shilec.plugin.api.communication.base.ICommunicationCallback;
 import com.shilec.plugin.api.communication.base.ICommunicationProxy;
 import com.shilec.plugin.api.communication.base.IMessageCallback;
-import com.shilec.plugin.api.communication.impl.CommunicationManager;
-import com.shilec.plugin.api.moudle.DataPackge;
+import com.shilec.plugin.api.communication.impl.CommunicationProxyManager;
 import com.shilec.plugin.api.scanner.DeviceScanner;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,19 +36,27 @@ import java.util.List;
 public class CommunicationSerivce extends Service implements ICommunicationCallback,
         IMessageCallback, DeviceScanner.IDeviceScanCallback, Handler.Callback {
 
-    private CommunicationManager cManager;
+    private CommunicationProxyManager cManager;
     private ICommunicationProxy mClientProxy;
     public static final String EXTRA_CMD = "CMD";
     public static final String CMD_START_COMMUNICATION = "START_COMMUNICATION";
     public static final String CMD_SCAN_DEVICE_IP_ADDR = "SCAN_DEVICE";
     public static final String CMD_ADD_DIY_DEVICE = "ADD_DEVICE";
     public static final String CMD_CLOSE_COMMUNICATION = "CLOSE_COMMUNICATION";
+    public static final String CMD_SEND_REQUEST_CMD = "SEND_CMD";
     public static final String EXTRA_DATA = "DATA";
     private List<DeviceInfo> devices;
     private final int DEVICE_FIND_PORT = 9008;
     private final int TCP_CONNECTION_PORT = 9009;
     private Handler handler = new Handler(this);
     private static List<OnFindDevices> observers = new ArrayList<>();
+
+    public static void excuteCmd(Context context, DataPackge dataPackge) {
+        Intent intent = new Intent(context, CommunicationSerivce.class);
+        intent.putExtra(CommunicationSerivce.EXTRA_DATA, dataPackge);
+        intent.putExtra(CommunicationSerivce.EXTRA_CMD, CommunicationSerivce.CMD_SEND_REQUEST_CMD);
+        context.startService(intent);
+    }
 
 
     public interface OnFindDevices {
@@ -70,7 +80,7 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
     @Override
     public void onCreate() {
         super.onCreate();
-        cManager = CommunicationManager.getInstance();
+        cManager = CommunicationProxyManager.getInstance();
         mClientProxy = cManager.getClientPoxy();
         mClientProxy.addCommunicationCallback(this);
         mClientProxy.addMessageCallback(this);
@@ -100,14 +110,33 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
             case CMD_CLOSE_COMMUNICATION:
                 closeCommunication();
                 break;
+            case CMD_SEND_REQUEST_CMD:
+                DataPackge dataPackge = (DataPackge) intent.getSerializableExtra(EXTRA_DATA);
+                mClientProxy.sendMessage(dataPackge);
+                break;
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
+//    private void sendCmd(data) {
+//        String msg = intent.getStringExtra(EXTRA_DATA);
+//        DataPackge data = new DataPackge();
+//        data.code = 222;
+//        data.data = msg;
+//        mClientProxy.sendMessage(data);
+//        Logger.i(CommunicationSerivce.class.getSimpleName(),">>>>>>fas ong>>>>>>>>>" + msg);
+//
+//    }
+
     private void closeCommunication() {
-        if(mClientProxy != null) {
-            mClientProxy.close();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(mClientProxy != null) {
+                    mClientProxy.close();
+                }
+            }
+        }).start();
     }
 
     private void addDevice(Intent intent) {
@@ -142,25 +171,40 @@ public class CommunicationSerivce extends Service implements ICommunicationCallb
     }
 
 
+
     private void startCommunication(Intent intent) {
         DeviceInfo info = (DeviceInfo) intent.getSerializableExtra(EXTRA_DATA);
         mClientProxy.startAsClient(info.ipAddr, TCP_CONNECTION_PORT);
     }
 
     @Override
-    public void onConnectionOpened(InetAddress inetAddress) {
+    public void onSocketConnected(InetAddress inetAddress) {
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"server closed ! close");
+    }
 
+    @Override
+    public void onCommunicationOpened() {
+        if(BaseActivity.getInstacne() != null) {
+            BaseActivity.getInstacne().dismissLoadingDialog();
+        }
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"onCommunicationOpened >>>>>>>>");
     }
 
     @Override
     public void onTimeOut() {
-
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"onTimeOut >>>>>>>>");
     }
 
     @Override
-    public void onConnectionClosed(int i) {
-        Logger.i(CommunicationSerivce.class.getSimpleName(),"server closed !");
+    public void onCommunocationClosed() {
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"onCommunocationClosed >>>>>>>>");
     }
+
+    @Override
+    public void onCommunicationDestory() {
+        Logger.i(CommunicationSerivce.class.getSimpleName(),"onCommunicationDestory >>>>>>>>");
+    }
+
 
     @Override
     public void onMessage(DataPackge dataPackge) {

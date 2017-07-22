@@ -13,7 +13,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.internal.MDButton;
 import com.scott.computercontrollerclient.R;
 
 import java.lang.reflect.Method;
@@ -38,7 +40,7 @@ public class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     private static BaseActivity mInstacne;
     private MaterialDialog mLoadingDialog;
 
-    public void showLoadingDialog(String title,String content) {
+    public void showLoadingDialog(String title,String content,boolean isCancel) {
         if(mLoadingDialog == null) {
             mLoadingDialog = new MaterialDialog.Builder(this)
                     .title(title)
@@ -46,6 +48,13 @@ public class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuIte
                     .progress(true, 0)
                     .negativeText("CANCEL")
                     .build();
+        }
+        if(!isCancel) {
+            MDButton actionButton = mLoadingDialog.getActionButton(DialogAction.NEGATIVE);
+            actionButton.setVisibility(View.INVISIBLE);
+        } else {
+            MDButton actionButton = mLoadingDialog.getActionButton(DialogAction.NEGATIVE);
+            actionButton.setVisibility(View.VISIBLE);
         }
         mLoadingDialog.setCancelable(false);
         mLoadingDialog.setTitle(title);
@@ -55,7 +64,12 @@ public class BaseActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     }
 
 
-    public void showMsgDialog(String msg) {
+    public void showLoadingDialog(String title,String content) {
+        showLoadingDialog(title,content,true);
+    }
+
+
+        public void showMsgDialog(String msg) {
         new MaterialDialog.Builder(this)
                 .title("提示")
                 .content(msg)

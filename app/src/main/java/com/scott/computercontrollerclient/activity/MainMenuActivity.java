@@ -52,6 +52,7 @@ public class MainMenuActivity extends BaseActivity implements AdapterView.OnItem
 
         initMenu();
         initViews();
+        showLoadingDialog("提示","正在建立连接,请稍后。。。",false);
     }
 
     private void initViews() {
