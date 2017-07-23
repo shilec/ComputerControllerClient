@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.scott.computercontrollerclient.activity.ControlMouseActivity">
+    tools:context="com.scott.computercontrollerclient.mousecontrol.ControlMouseActivity">
     <TextView
         android:visibility="gone"
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     <EditText
+        android:visibility="gone"
         android:layout_margin="10dp"
         android:id="@+id/edit_content"
         android:layout_width="match_parent"

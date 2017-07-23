@@ -2,7 +2,6 @@ package com.scott.computercontrollerclient.activity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,8 +12,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.scott.computercontrollerclient.MainActivity;
 import com.scott.computercontrollerclient.R;
 import com.scott.computercontrollerclient.adapter.MainMenuAdapter;
+import com.scott.computercontrollerclient.base.BaseActivity;
 import com.scott.computercontrollerclient.moudle.DeviceInfo;
 import com.scott.computercontrollerclient.moudle.MenuItem;
+import com.scott.computercontrollerclient.mousecontrol.ControlMouseActivity;
 import com.scott.computercontrollerclient.service.CommunicationSerivce;
 
 import java.util.ArrayList;

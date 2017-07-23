@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.scott.computercontrollerclient.activity.BaseActivity;
+import com.scott.computercontrollerclient.base.BaseActivity;
 import com.scott.computercontrollerclient.app.EventContacs;
 import com.scott.computercontrollerclient.event.EventManager;
 import com.scott.computercontrollerclient.moudle.CommunicationEvent;
@@ -26,7 +26,6 @@ import com.shilec.plugin.api.scanner.DeviceScanner;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**

@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -16,16 +14,12 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.scott.computercontrollerclient.R;
 import com.scott.computercontrollerclient.adapter.DeviceListAdapter;
+import com.scott.computercontrollerclient.base.BaseActivity;
 import com.scott.computercontrollerclient.moudle.DeviceInfo;
 import com.scott.computercontrollerclient.service.CommunicationSerivce;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.logging.Logger;
 
 import butterknife.BindView;
 public class DeviceListActivity extends BaseActivity

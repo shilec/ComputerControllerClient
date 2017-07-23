@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:windowSoftInputMode="adjustPan"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <TextView
+        android:layout_weight="1"
+        android:background="@color/bk_touch_pad"
+        android:id="@+id/tv_touch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+    <LinearLayout
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <Button
+            android:id="@+id/btn_left"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            android:text="Left"
+            android:gravity="center"
+            android:background="@drawable/btn_touchpad_left"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/btn_right"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            android:text="Right"
+            android:gravity="center"
+            android:background="@drawable/btn_touchpad_right"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</LinearLayout>

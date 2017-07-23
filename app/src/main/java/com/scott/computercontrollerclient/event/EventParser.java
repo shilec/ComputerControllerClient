@@ -34,6 +34,7 @@ class EventParser implements IEventParser {
             //event.code 为main code,perfomer 为子code
             //只要标识main code,则会接受所有main code 的子code
             //code == -1 所有event都接受
+            if(event == null) continue;
             if(code != -1 && code != event.getEventType() &&
                     code != (event.getEventType() | 0x0ff)
                     && (code | 0xff) != event.getEventType()) {

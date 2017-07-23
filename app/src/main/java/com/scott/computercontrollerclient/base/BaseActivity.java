@@ -1,4 +1,4 @@
-package com.scott.computercontrollerclient.activity;
+package com.scott.computercontrollerclient.base;
 
 import android.graphics.Color;
 import android.os.Bundle;

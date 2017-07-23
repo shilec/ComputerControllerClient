@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void mouseClick() {
         DataPackge data= new DataPackge();
-        data.code = Contacts.Command.CMD_MOUSE_CLICK;
+        data.code = Contacts.Command.CMD_MOUSE_LEFT_CLICK;
         try {
             oos.writeObject(data);
             oos.flush();
